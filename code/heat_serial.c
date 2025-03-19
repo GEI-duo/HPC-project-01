@@ -1,17 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
+#include "heat.h"
 
-#define BMP_HEADER_SIZE 54
-#define ALPHA 0.01 // Thermal diffusivity
-#define L 0.2      // Length (m) of the square domain
-#define DX 0.02    // grid spacing in x-direction
-#define DY 0.02    // grid spacing in y-direction
-#define DT 0.0005  // Time step
-#define T 1500     // Temperature on ºk of the heat source
 
-// Function to print the grid (optional, for debugging or visualization)
 void print_grid(double *grid, int nx, int ny)
 {
     int i, j;
@@ -26,7 +15,6 @@ void print_grid(double *grid, int nx, int ny)
     printf("\n");
 }
 
-// Function to initialize the grid
 void initialize_grid(double *grid, int nx, int ny, int temp_source)
 {
     int i, j;
@@ -77,7 +65,6 @@ void solve_heat_equation(double *grid, double *new_grid, int steps, double r, in
     }
 }
 
-// Function to write BMP file header
 void write_bmp_header(FILE *file, int width, int height)
 {
     unsigned char header[BMP_HEADER_SIZE] = {0};
@@ -153,7 +140,6 @@ void get_color(double value, unsigned char *r, unsigned char *g, unsigned char *
     }
 }
 
-// Function to write the grid matrix into the file
 void write_grid(FILE *file, double *grid, int nx, int ny)
 {
     int i, j, padding;
