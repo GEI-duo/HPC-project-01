@@ -18,6 +18,7 @@ void print_grid(double *grid, int nx, int ny)
 void initialize_grid(double *grid, int nx, int ny, int temp_source)
 {
     int i, j;
+    
     for (i = 0; i < nx; i++)
     {
         for (j = 0; j < ny; j++)
@@ -204,11 +205,13 @@ int main(int argc, char *argv[])
 
     fclose(file);
     // Function to visualize the values of the temperature. Use only for debugging
-    //  print_grid(grid, nx, ny);
+    print_grid(grid, nx, ny);
     //  Free allocated memory
     free(grid);
     free(new_grid);
+#ifndef TEST
     time_end = clock();
     printf("The Execution Time=%fs with a matrix size of %dx%d and %d steps\n", (time_end - time_begin) / (double)CLOCKS_PER_SEC, nx, nx, steps);
+#endif
     return 0;
 }
