@@ -157,7 +157,7 @@ void write_grid(FILE *file, double *grid, int nx, int ny)
         exit(1);
     }
 
-    #pragma omp parallel for
+    #pragma omp parallel for private(j, p)
     for (i = 0; i < nx; i++) {
         int row_index = nx - 1 - i; // BMP is bottom-to-top
         int row_offset = i * padded_row_size;
