@@ -15,15 +15,18 @@ OBJECTS = $(SOURCES:.c=.o)
 # Compile only target
 compile: $(OBJECTS)
 
+
 serial: compile
-	chmod +x run-multiple-omp.sh
 	./run-multiple-omp.sh serial
 
 omp: compile
-	chmod +x run-multiple-omp.sh
 	./run-multiple-omp.sh omp
 
 all: serial omp
+
+# Extract test time results
+time:
+	./run-extract-results.sh
 
 # Clean target
 clogs:
