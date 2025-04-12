@@ -1,0 +1,17 @@
+% \usepackage{tabularray}
+\begin{table}
+    \centering
+    \begin{tblr}{
+      cells = {c},
+      cell{1}{2} = {c=5}{},
+      hlines,
+      vlines,
+    }
+    \textbf{\textit{1000 STEPS}}  & \textbf{\textit{Execution}} &                           &                           &                           &                           \\
+    \textbf{\textit{Matrix Size}} & \textbf{\textit{SERIAL}}    & \textbf{\textit{OMP T-1}} & \textbf{\textit{OMP T-2}} & \textbf{\textit{OMP T-4}} & \textbf{\textit{OMP T-8}} \\
+    \textbf{\textit{100x100}}     & \textit{0.11}               & \textit{0.151429}         & \textit{0.08076}          & \textit{0.047042}         & \textit{0.08615}          \\
+    \textbf{\textit{1000x1000}}   & \textit{12.37}              & \textit{14.936403}        & \textit{7.899948}         & \textit{4.287486}         & \textit{4.538504}         \\
+    \textbf{\textit{2000x2000}}   & \textit{48.66}              & \textit{59.242891}        & \textit{31.113219}        & \textit{16.738927}        & \textit{17.468413}        
+    \end{tblr}
+    \caption{1000 steps execution time results}
+\end{table}

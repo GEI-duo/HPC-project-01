@@ -1,0 +1,18 @@
+% \usepackage[normalem]{ulem}
+% \usepackage{tabularray}
+\begin{table}
+    \centering
+    \begin{tblr}{
+      cells = {c},
+      cell{1}{2} = {c=5}{},
+      hlines,
+      vlines,
+    }
+    \textbf{\textit{10000 STEPS}} & \textbf{\textit{Execution}} &                           &                           &                           &                           \\
+    \textbf{\textit{Matrix Size}} & \textbf{\textit{SERIAL}}    & \textbf{\textit{OMP T-1}} & \textbf{\textit{OMP T-2}} & \textbf{\textit{OMP T-4}} & \textbf{\textit{OMP T-8}} \\
+    \textbf{\textit{100x100}}     & 1.02                        & 1.296468                  & 0.691538                  & 0.375628                  & 0.765333                  \\
+    \textbf{\textit{1000x1000}}   & 109.6                       & 135.606736                & 70.097145                 & 36.68247                  & 39.480683                 \\
+    \textbf{\textit{2000x2000}}   & 476.73                      & 583.12579                 & 300.843573                & 157.136858                & 166.913589                
+    \end{tblr}
+    \caption{10000 steps execution time results}
+\end{table}

@@ -4,5 +4,13 @@
 
 \section{Conclusions}
 
+From the graphs of the previous \textit{Section \ref{sec:results}}, we can extract some conclusions.
+
+\begin{itemize}
+    \item Since we added some overhead, as we predicted, our executions of the code with OMP with 1 thread are worse than the serial code.
+    \item Since the machines the code ran on have 4 cores, the execution of the code with OMP with 8 threads is worse than the execution with 4 threads.
+    \item The execution time starts to improve when using >2 threads (obviously), and it's further improved when the problem size is bigger, with bigger matrix sizes and more steps.
+    \item The efficiency is not that good in any execution, but they are quite similar (excluding the 100 steps execution), so we can `ignore' it and, in the future, decide to just use the best speedup, which is the 4 threads.
+\end{itemize}
 
 \end{document}

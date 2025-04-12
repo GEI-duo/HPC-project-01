@@ -1,0 +1,28 @@
+% \usepackage{tabularray}
+\begin{table}
+    \centering
+    \begin{tblr}{
+      row{1} = {c},
+      column{3} = {c},
+      column{4} = {c},
+      column{5} = {c},
+      cell{1}{2} = {c=5}{},
+      cell{2}{1} = {c},
+      cell{2}{2} = {c},
+      cell{3}{1} = {c},
+      cell{3}{2} = {c},
+      cell{4}{1} = {c},
+      cell{4}{2} = {c},
+      cell{5}{1} = {c},
+      cell{5}{2} = {c},
+      hlines,
+      vlines,
+    }
+    \textbf{\textit{100 STEPS}}   & \textbf{\textit{Execution}} &                           &                           &                           &                           \\
+    \textbf{\textit{Matrix Size}} & \textbf{\textit{SERIAL}}    & \textbf{\textit{OMP T-1}} & \textbf{\textit{OMP T-2}} & \textbf{\textit{OMP T-4}} & \textbf{\textit{OMP T-8}} \\
+    \textbf{\textit{100x100}}     & \textit{0.01}               & \textit{0.023784}         & \textit{0.014906}         & \textit{0.010339}         & \textit{0.015886}         \\
+    \textbf{\textit{1000x1000}}   & \textit{1.34}               & \textit{1.667607}         & \textit{1.007961}         & \textit{0.621634}         & \textit{0.670591}         \\
+    \textbf{\textit{2000x2000}}   & \textit{5.33}               & \textit{6.344592}         & \textit{3.766311}         & \textit{2.432052}         & \textit{2.452237}         
+    \end{tblr}
+    \caption{100 steps execution time results}
+  \end{table}

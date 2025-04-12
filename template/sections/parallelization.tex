@@ -4,5 +4,86 @@
 
 \section{Parallelization}
 
+To parallelize the program we did parallelize the following three functions, which were the ones presenting loops.
+
+\subsection{initialize\_grid}
+
+The function \textit{initialize\_grid} has one main loop with another loop inside. This function was the easier to parallelize, since we could simply do a single pragma command such as in \textbf{Code \ref{code:ini-grid}}. If you notice, we swapped the order of the loops, that is because we think that it will be better for cache locality, but we didn't test it.
+
+\begin{code}[numbers=left]{title=Paralellization of initialize\_grid,label=code:ini-grid}{c}
+    ...
+    #pragma omp parallel for private(j) collapse(2)
+    for (i = 0; i < nx; i++)
+        for (j = 0; j < ny; j++)
+    ...
+\end{code}
+
+\subsection{solve\_heat\_equation}
+
+The \textit{solve\_heat\_equation} function was pretty straight forward even though there were plenty loops, we parallelized the inner ones as in \textbf{Code \ref{code:calc}} The first pragma command parallelizes the nested loops by collapsing them, and making the variable \textit{j} private for each thread. The rest of the for loops are more straight forward as you can see in the code.
+
+\begin{code}[numbers=left]{title=Paralellization of solve\_heat\_equation,label=code:calc}{c}
+    ...
+    for (step = 0; step < steps; step++)
+    {
+        #pragma omp parallel for private(j) collapse(2)
+        for (i = 1; i < nx - 1; i++)
+            for (j = 1; j < ny - 1; j++)
+                // Compute the new grid
+
+        #pragma omp parallel for
+        for (i = 0; i < nx; i++)
+            // Boundary conditions
+
+        #pragma omp parallel for
+        for (j = 0; j < ny; j++)
+            // Swap the grids
+        
+        ...
+    }
+\end{code}
+
+\subsection{write\_grid}
+
+This last parallelizable function, \textit{write\_grid}, was the trickiest, since it contained thread-unsafe functions (\textit{fwrite} and \textit{fputc}) inside its loops, so to parallelize it, we had to recreate the same behaviour by replacing the thread-unsafe code that wrote the results into a file, to write the results into an intermediate cache (a matrix allocated in the heap). 
+This code is not strictly needed, actually it may not be that good since the parallelized code is minimal and the implementation provides some overhead (we could calculate if it is worth it by doing more runs) by using the heap as well (by using \textit{pixel\_data}), but in this way we made it parallelizable, even if it doesn't provide efficiency.
+
+\begin{code}[numbers=left]{title=Paralellization of write\_grid,label=code:write-grid}{c}
+    int row_stride = ny * 3;
+    int padding = (4 - (row_stride % 4)) % 4;
+    int padded_row_size = row_stride + padding;
+    int total_size = nx * padded_row_size;
+    int i, j, p;
+
+    unsigned char *pixel_data = malloc(total_size);
+    if (!pixel_data) {
+        fprintf(stderr, "Failed to allocate memory\n");
+        exit(1);
+    }
+
+    #pragma omp parallel for private(j, p)
+    for (i = 0; i < nx; i++) {
+        int row_index = nx - 1 - i; // BMP is bottom-to-top
+        int row_offset = i * padded_row_size;
+
+        for (j = 0; j < ny; j++) {
+            unsigned char r, g, b;
+            get_color(grid[row_index * ny + j], &r, &g, &b);
+
+            int pixel_offset = row_offset + j * 3;
+            pixel_data[pixel_offset + 0] = b;
+            pixel_data[pixel_offset + 1] = g;
+            pixel_data[pixel_offset + 2] = r;
+        }
+
+        // Zero out padding at the end of the row
+        for (p = 0; p < padding; p++) {
+            pixel_data[row_offset + row_stride + p] = 0;
+        }
+    }
+
+    fwrite(pixel_data, 1, total_size, file);
+    free(pixel_data);
+\end{code}
 
 \end{document}
