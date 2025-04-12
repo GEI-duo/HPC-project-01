@@ -1,5 +1,4 @@
 #include "heat.h"
-#include <omp.h>
 
 
 void print_grid(double *grid, int nx, int ny)
@@ -20,8 +19,6 @@ void initialize_grid(double *grid, int nx, int ny, int temp_source)
 {
     int i, j;
     
-    // TODO: Check if for loops should be reverse order due to cache
-    #pragma omp parallel for private(j) collapse(2)
     for (i = 0; i < nx; i++)
     {
         for (j = 0; j < ny; j++)
@@ -40,27 +37,23 @@ void solve_heat_equation(double *grid, double *new_grid, int steps, double r, in
 {
     int step, i, j;
     double *temp;
-
     for (step = 0; step < steps; step++)
     {
         // Compute the new grid
-        #pragma omp parallel for private(j) collapse(2)
         for (i = 1; i < nx - 1; i++)
         {
             for (j = 1; j < ny - 1; j++)
             {
+
                 new_grid[i * ny + j] = grid[i * ny + j] + r * (grid[(i + 1) * ny + j] + grid[(i - 1) * ny + j] - 2 * grid[i * ny + j]) + r * (grid[i * ny + j + 1] + grid[i * ny + j - 1] - 2 * grid[i * ny + j]);
             }
         }
-
         // Apply boundary conditions (Dirichlet: u=0 on boundaries)
-        #pragma omp parallel for
         for (i = 0; i < nx; i++)
         {
             new_grid[0 * ny + i] = 0.0;
             new_grid[ny * (nx - 1) + i] = 0.0;
         }
-        #pragma omp parallel for
         for (j = 0; j < ny; j++)
         {
             new_grid[0 + j * nx] = 0.0;
@@ -150,47 +143,30 @@ void get_color(double value, unsigned char *r, unsigned char *g, unsigned char *
 
 void write_grid(FILE *file, double *grid, int nx, int ny)
 {
-    int row_stride = ny * 3;
-    int padding = (4 - (row_stride % 4)) % 4;
-    int padded_row_size = row_stride + padding;
-    int total_size = nx * padded_row_size;
-    int i, j, p;
-
-    unsigned char *pixel_data = malloc(total_size);
-    if (!pixel_data) {
-        fprintf(stderr, "Failed to allocate memory\n");
-        exit(1);
-    }
-
-    #pragma omp parallel for private(j, p)
-    for (i = 0; i < nx; i++) {
-        int row_index = nx - 1 - i; // BMP is bottom-to-top
-        int row_offset = i * padded_row_size;
-
-        for (j = 0; j < ny; j++) {
+    int i, j, padding;
+    // Write pixel data to BMP file
+    for (i = nx - 1; i >= 0; i--)
+    { // BMP format stores pixels bottom-to-top
+        for (j = 0; j < ny; j++)
+        {
             unsigned char r, g, b;
-            get_color(grid[row_index * ny + j], &r, &g, &b);
-
-            int pixel_offset = row_offset + j * 3;
-            pixel_data[pixel_offset + 0] = b;
-            pixel_data[pixel_offset + 1] = g;
-            pixel_data[pixel_offset + 2] = r;
+            get_color(grid[i * ny + j], &r, &g, &b);
+            fwrite(&b, 1, 1, file); // Write blue channel
+            fwrite(&g, 1, 1, file); // Write green channel
+            fwrite(&r, 1, 1, file); // Write red channel
         }
-
-        // Zero out padding at the end of the row
-        for (p = 0; p < padding; p++) {
-            pixel_data[row_offset + row_stride + p] = 0;
+        // Row padding for 4-byte alignment (if necessary)
+        for (padding = 0; padding < (4 - (nx * 3) % 4) % 4; padding++)
+        {
+            fputc(0, file);
         }
     }
-
-    fwrite(pixel_data, 1, total_size, file);
-    free(pixel_data);
 }
 
 // Main function
 int main(int argc, char *argv[])
 {
-    double time_begin, elapsed_time;
+    clock_t time_begin, time_end;
     char car;
     double r;   // constant of the heat equation
     int nx, ny; // Grid size in x-direction and y-direction
@@ -206,7 +182,7 @@ int main(int argc, char *argv[])
     nx = ny = atoi(argv[1]);
     r = ALPHA * DT / (DX * DY);
     steps = atoi(argv[2]);
-    time_begin = omp_get_wtime();
+    time_begin = clock();
     // Allocate memory for the grid
     double *grid = (double *)calloc(nx * ny, sizeof(double));
     double *new_grid = (double *)calloc(nx * ny, sizeof(double));
@@ -233,7 +209,9 @@ int main(int argc, char *argv[])
     //  Free allocated memory
     free(grid);
     free(new_grid);
-    elapsed_time = omp_get_wtime() - time_begin;
-    printf("The Execution Time=%fs with a matrix size of %dx%d and %d steps\n", elapsed_time, nx, nx, steps);
+#ifndef TEST
+    time_end = clock();
+    printf("The Execution Time=%fs with a matrix size of %dx%d and %d steps\n", (time_end - time_begin) / (double)CLOCKS_PER_SEC, nx, nx, steps);
+#endif
     return 0;
 }

@@ -22,7 +22,7 @@ serial: compile
 omp: compile
 	./run-multiple-omp.sh omp
 
-all: serial omp
+all: compile serial omp
 
 # Extract test time results
 time:
